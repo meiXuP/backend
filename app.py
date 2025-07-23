@@ -133,7 +133,7 @@ def save_cropped_image(base64_str, username):
 
     except Exception as e:
         print("Image upload failed:", e)
-        return "default.png"
+        return "https://res.cloudinary.com/dcfofc9fa/image/upload/v1753272438/profile_pic_sujsef.png"
 
 
 
