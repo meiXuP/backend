@@ -10,3 +10,13 @@ mysqlclient
 Pillow
 cloudinary
 dotenv
+random
+werkzeug.utils
+os
+datetime
+base64
+io
+PIL
+re
+functools
+MySQLdb
