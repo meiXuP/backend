@@ -26,6 +26,7 @@ import cloudinary
 import cloudinary.uploader
 import cloudinary.api
 
+from dotenv import load_dotenv
 
 
 
@@ -60,11 +61,14 @@ print("Async mode:", socketio.async_mode)
 
 
 
-# Cloudinary Config (use env vars in production)
+
+
+load_dotenv()  # ✅ Load env vars from .env file
+
 cloudinary.config(
-    cloud_name=os.environ.get("dcfofc9fa"),
-    api_key=os.environ.get("354573977648154"),
-    api_secret=os.environ.get("_2he80vjNBNxsXUGEmVnLNJJUO4")
+    cloud_name=os.environ.get("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.environ.get("CLOUDINARY_API_KEY"),
+    api_secret=os.environ.get("CLOUDINARY_API_SECRET")
 )
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
