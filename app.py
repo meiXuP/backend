@@ -39,10 +39,7 @@ from dotenv import load_dotenv
 # ⚙️ App setup
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'c061cfd9aff94c6998854f4fcdd835cf49c0182dad5fb3d9ad16eaa9645d121d'
-# socketio = SocketIO(app, async_mode='eventlet')
-# CORS(app, resources={"origins": "https://chat.meixup.in"}, supports_credentials=True)  # ✅ Allow cookies & session cross-origin
-# CORS(app, supports_credentials=True, origins=["https://chat.meixup.in"])  # Allow all origins
-# ✅ Global CORS setup
+
 
 
 CORS(
@@ -66,11 +63,6 @@ print("Async mode:", socketio.async_mode)
 
 load_dotenv()  # ✅ Load env vars from .env file
 
-cloudinary.config(
-    cloud_name=os.environ.get("CLOUDINARY_CLOUD_NAME"),
-    api_key=os.environ.get("CLOUDINARY_API_KEY"),
-    api_secret=os.environ.get("CLOUDINARY_API_SECRET")
-)
 
 
 
@@ -85,12 +77,20 @@ def validate_username(username):
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 MAX_FILE_SIZE_MB = 3
 
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 def upload_to_cloudinary(buffer, username, result_dict):
     try:
+        # ✅ Reconfigure Cloudinary in the thread
+        cloudinary.config(
+            cloud_name=os.environ.get("CLOUDINARY_CLOUD_NAME"),
+            api_key=os.environ.get("CLOUDINARY_API_KEY"),
+            api_secret=os.environ.get("CLOUDINARY_API_SECRET")
+        )
+
         upload_result = cloudinary.uploader.upload(
             buffer,
             public_id=f"profile_pics/{username}",
@@ -124,18 +124,16 @@ def save_cropped_image(base64_str, username):
         if len(buffer.getvalue()) > MAX_FILE_SIZE_MB * 1024 * 1024:
             raise ValueError("Image exceeds 3MB size limit")
 
-        # Use a shared dictionary to capture upload result
         result = {}
         upload_thread = threading.Thread(target=upload_to_cloudinary, args=(buffer, username, result))
         upload_thread.start()
-        upload_thread.join()  # Wait for upload to finish (or remove to fully async)
+        upload_thread.join()  # remove this if you want async
 
         return result.get('url', 'default.png')
 
     except Exception as e:
         print("Image upload failed:", e)
         return "default.png"
-
 
 
 
