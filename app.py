@@ -18,6 +18,7 @@ from io import BytesIO
 from PIL import Image
 import re
 from functools import wraps
+import threading
 
 from flask_mysqldb import MySQL
 import MySQLdb
@@ -71,12 +72,6 @@ cloudinary.config(
     api_secret=os.environ.get("CLOUDINARY_API_SECRET")
 )
 
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-MAX_FILE_SIZE_MB = 3
-
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 def validate_email(email):
@@ -87,45 +82,59 @@ def validate_username(username):
     return re.match(r'^[a-zA-Z0-9_]{3,20}$', username)
 
 
-def save_cropped_image(base64_str, username):
-    if not base64_str or not username:
-        return 'default.png'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+MAX_FILE_SIZE_MB = 3
 
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def upload_to_cloudinary(buffer, username, result_dict):
     try:
-        # Clean base64 prefix
-        if base64_str.startswith('data:image'):
-            base64_str = base64_str.split(',', 1)[1]
-
-        image_data = base64.b64decode(base64_str)
-        image = Image.open(BytesIO(image_data))
-
-        # Validate image format
-        if image.format.lower() not in ALLOWED_EXTENSIONS:
-            raise ValueError("Unsupported image format")
-
-        # Save temporarily to memory (not disk)
-        buffer = BytesIO()
-        image.save(buffer, format=image.format)
-        buffer.seek(0)
-
-        # Check size limit (3MB)
-        if len(buffer.getvalue()) > MAX_FILE_SIZE_MB * 1024 * 1024:
-            raise ValueError("Image exceeds 3MB size limit")
-
-        # Upload to Cloudinary
         upload_result = cloudinary.uploader.upload(
             buffer,
             public_id=f"profile_pics/{username}",
             overwrite=True,
             resource_type="image"
         )
+        result_dict['url'] = upload_result.get("secure_url", "default.png")
+    except Exception as e:
+        print("Background upload failed:", e)
+        result_dict['url'] = "default.png"
 
-        return upload_result.get("secure_url", "default.png")
+
+def save_cropped_image(base64_str, username):
+    if not base64_str or not username:
+        return 'default.png'
+
+    try:
+        if base64_str.startswith('data:image'):
+            base64_str = base64_str.split(',', 1)[1]
+
+        image_data = base64.b64decode(base64_str)
+        image = Image.open(BytesIO(image_data))
+
+        if image.format.lower() not in ALLOWED_EXTENSIONS:
+            raise ValueError("Unsupported image format")
+
+        buffer = BytesIO()
+        image.save(buffer, format=image.format)
+        buffer.seek(0)
+
+        if len(buffer.getvalue()) > MAX_FILE_SIZE_MB * 1024 * 1024:
+            raise ValueError("Image exceeds 3MB size limit")
+
+        # Use a shared dictionary to capture upload result
+        result = {}
+        upload_thread = threading.Thread(target=upload_to_cloudinary, args=(buffer, username, result))
+        upload_thread.start()
+        upload_thread.join()  # Wait for upload to finish (or remove to fully async)
+
+        return result.get('url', 'default.png')
 
     except Exception as e:
         print("Image upload failed:", e)
         return "default.png"
-
 
 
 
