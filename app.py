@@ -161,10 +161,10 @@ app.config.update(
 
 
 # ✅ Automatically refresh session expiration on each request
-# @app.before_request
-# def before_request():
-#     session.permanent = True
-#     session.modified = True
+@app.before_request
+def before_request():
+    session.permanent = True
+    session.modified = True
 
 
 
@@ -203,10 +203,10 @@ def login():
         if not email_verified:
             return jsonify({"status": "error", "message": "Please verify your email with OTP first."})
 
-        session['user_email'] = email   # ✅ This line MUST execute
-        session.permanent = True        # Optional, sets expiration
+        # session['user_email'] = email   # ✅ This line MUST execute
+        # session.permanent = True        # Optional, sets expiration
 
-        print("Logged in:", session)    # ✅ Debugging
+        # print("Logged in:", session)    # ✅ Debugging
 
         return jsonify({
             "status": "success",
