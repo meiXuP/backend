@@ -736,4 +736,4 @@ def logout():
     return jsonify({"success": True, "message": "Logged out successfully"}), 200
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True,  port=5000)
+    socketio.run(app, debug=True)
