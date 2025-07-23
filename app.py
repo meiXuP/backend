@@ -168,8 +168,8 @@ cursor = db.cursor()
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'otroom101@gmail.com'
-app.config['MAIL_PASSWORD'] = 'wrqycvhllrtaztre'
+app.config['MAIL_USERNAME'] = 'knu.smm.official@gmail.com'
+app.config['MAIL_PASSWORD'] = 'jjdencdnxlkucswc'
 mail = Mail(app)
 
 
