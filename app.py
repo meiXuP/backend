@@ -48,7 +48,6 @@ CORS(
         "https://chat.meixup.in"
     ],
     supports_credentials=True,
-    methods=["GET", "OPTIONS", "POST"]
 )
 
 socketio = SocketIO(app, cors_allowed_origins=["https://chat.meixup.in"
@@ -169,25 +168,25 @@ cursor = db.cursor()
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'knu.smm.official@gmail.com'
-app.config['MAIL_PASSWORD'] = 'jjdencdnxlkucswc'
+app.config['MAIL_USERNAME'] = 'otroom101@gmail.com'
+app.config['MAIL_PASSWORD'] = 'wrqycvhllrtaztre'
 mail = Mail(app)
 
 
 
 
-def login_required(f):
+# def login_required(f):
 
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if 'user_email' not in session:
-            return jsonify({
-                "status": "error",
-                "message": "Unauthorized access. Please login first."
-            }), 401
-        return f(*args, **kwargs)
+#     @wraps(f)
+#     def decorated_function(*args, **kwargs):
+#         if 'user_email' not in session:
+#             return jsonify({
+#                 "status": "error",
+#                 "message": "Unauthorized access. Please login first."
+#             }), 401
+#         return f(*args, **kwargs)
 
-    return decorated_function
+#     return decorated_function
 
 
 app.config.update(
@@ -573,7 +572,6 @@ def on_join(data):
 # # -------------------------------
 # WebSocket: Send Message
 @socketio.on('send_message')
-# @cross_origin(origins="https://chat.meixup.in", supports_credentials=True)
 def handle_send_message(data):
     sender = data.get('sender')
     receiver = data.get('receiver')
