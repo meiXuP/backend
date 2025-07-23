@@ -9,3 +9,4 @@ Flask-MySQLdb
 mysqlclient
 Pillow
 cloudinary
+dotenv
