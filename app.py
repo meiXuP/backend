@@ -22,6 +22,17 @@ from functools import wraps
 from flask_mysqldb import MySQL
 import MySQLdb
 
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+
+
+
+
+
+
+
+
 
 # ⚙️ App setup
 app = Flask(__name__)
@@ -49,20 +60,17 @@ print("Async mode:", socketio.async_mode)
 
 
 
+# Cloudinary Config (use env vars in production)
+cloudinary.config(
+    cloud_name=os.environ.get("dcfofc9fa"),
+    api_key=os.environ.get("354573977648154"),
+    api_secret=os.environ.get("_2he80vjNBNxsXUGEmVnLNJJUO4")
+)
 
-
-
-
-
-# # Configure upload folder
-UPLOAD_FOLDER = 'static/uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 3 * 1024 * 1024  # 2MB limit
+MAX_FILE_SIZE_MB = 3
 
 
-# # Helper functions
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
@@ -75,30 +83,48 @@ def validate_username(username):
     return re.match(r'^[a-zA-Z0-9_]{3,20}$', username)
 
 
-
-
 def save_cropped_image(base64_str, username):
     if not base64_str or not username:
         return 'default.png'
 
-    if base64_str.startswith('data:image'):
-        base64_str = base64_str.split(',', 1)[1]
+    try:
+        # Clean base64 prefix
+        if base64_str.startswith('data:image'):
+            base64_str = base64_str.split(',', 1)[1]
 
-    image_data = base64.b64decode(base64_str)
-    image = Image.open(BytesIO(image_data))
+        image_data = base64.b64decode(base64_str)
+        image = Image.open(BytesIO(image_data))
 
-    if image.format.lower() not in ['jpeg', 'jpg', 'png', 'gif']:
-        raise ValueError("Unsupported image format")
+        # Validate image format
+        if image.format.lower() not in ALLOWED_EXTENSIONS:
+            raise ValueError("Unsupported image format")
 
-    extension = image.format.lower()
-    filename = secure_filename(f"{username}_profile.{extension}")
-    upload_folder = app.config['UPLOAD_FOLDER']  # ✅ Use current_app
-    filepath = os.path.join(upload_folder, filename)
+        # Save temporarily to memory (not disk)
+        buffer = BytesIO()
+        image.save(buffer, format=image.format)
+        buffer.seek(0)
 
-    os.makedirs(upload_folder, exist_ok=True)
-    image.save(filepath, format=image.format, quality=85)
+        # Check size limit (3MB)
+        if len(buffer.getvalue()) > MAX_FILE_SIZE_MB * 1024 * 1024:
+            raise ValueError("Image exceeds 3MB size limit")
 
-    return filename
+        # Upload to Cloudinary
+        upload_result = cloudinary.uploader.upload(
+            buffer,
+            public_id=f"profile_pics/{username}",
+            overwrite=True,
+            resource_type="image"
+        )
+
+        return upload_result.get("secure_url", "default.png")
+
+    except Exception as e:
+        print("Image upload failed:", e)
+        return "default.png"
+
+
+
+
 
 
 # Flask MySQL configuration
@@ -566,7 +592,6 @@ def handle_send_message(data):
 
 # Route to serve user profile pictures
 @app.route('/static/uploads/<filename>')
-# @cross_origin(origins="https://chat.meixup.in", supports_credentials=True)
 def serve_profile_pic(filename):
     return send_from_directory('static/uploads', filename)
 
