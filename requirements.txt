@@ -10,7 +10,7 @@ mysqlclient
 Pillow
 cloudinary
 dotenv
-random
+random2
 werkzeug.utils
 os
 datetime
