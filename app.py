@@ -101,22 +101,23 @@ def save_cropped_image(base64_str, username):
     return filename
 
 
-# MySQL configuration
-app.config['MYSQL_HOST'] = 'localhost'
+# Flask MySQL configuration
+app.config['MYSQL_HOST'] = 'ballast.proxy.rlwy.net'
+app.config['MYSQL_PORT'] = 10272  # ✅ Add this line
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'Dip@303#123otSS'
-app.config['MYSQL_DB'] = 'meix_up'
+app.config['MYSQL_PASSWORD'] = 'asOxKgVNXYPBbZiHGbmPLjaCxvWJLNlr'
+app.config['MYSQL_DB'] = 'railway'
 
 mysql = MySQL(app)
 
+# Manual MySQLdb connection for dashboard
 
-
-# for dashboard
 db = MySQLdb.connect(
-    host="localhost",
+    host="ballast.proxy.rlwy.net",
+    port=10272,  # ✅ Add this
     user="root",
-    password="Dip@303#123otSS",
-    database="meix_up"
+    passwd="asOxKgVNXYPBbZiHGbmPLjaCxvWJLNlr",
+    db="railway"
 )
 cursor = db.cursor()
 
