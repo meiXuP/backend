@@ -610,15 +610,9 @@ def serve_profile_pic(filename):
 
 
 
-# # -------------------------------
-# # ✅ Run Flask-SocketIO App
-# # -------------------------------
 
-# # -------------------------------
-# # ✅ API: Get Recent Users (message.html)
-# # -------------------------------
+# ✅ API: Get Recent Users (message.html)
 @app.route('/api/recent-users', methods=['GET', 'OPTIONS'])
-# @cross_origin(origins="https://chat.meixup.in", supports_credentials=True)
 def recent_users():
     try:
         current_user = request.args.get('user')
@@ -656,8 +650,7 @@ def recent_users():
 
     except Exception as e:
         print("Error in /api/recent-users:", e)
-        return jsonify({'error': 'Internal server error'}), 500
-    
+        return jsonify({'error': 'Internal server error'}), 500    
     
 # Store online users
 online_users = set()
