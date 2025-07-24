@@ -621,16 +621,15 @@ def recent_users():
 
         cursor = mysql.connection.cursor()
 
-        # Fetch users with whom current_user has exchanged messages
         query = """
-            SELECT u.username, u.profile_pic, u.last_seen, u.is_active, MAX(m.timestamp) as last_msg_time
+            SELECT u.username, u.profile_pic, u.is_active, MAX(m.timestamp) as last_msg_time
             FROM users u
             JOIN messages m ON (
                 (m.sender = %s AND m.receiver = u.username) OR
                 (m.receiver = %s AND m.sender = u.username)
             )
             WHERE u.username != %s
-            GROUP BY u.username, u.profile_pic, u.last_seen, u.is_active
+            GROUP BY u.username, u.profile_pic, u.is_active
             ORDER BY last_msg_time DESC
             LIMIT 10;
         """
@@ -638,19 +637,21 @@ def recent_users():
         results = cursor.fetchall()
         cursor.close()
 
-        # Prepare response
-        users = [{
-            'username': row[0],
-            'profile_pic': row[1],
-            'last_seen': row[2].strftime('%Y-%m-%d %H:%M:%S') if row[2] else None,
-            'is_active': row[3] == 1
-        } for row in results]
+        users = []
+        for row in results:
+            users.append({
+                'username': row[0],
+                'profile_pic': row[1],
+                'is_active': row[2] == 1
+            })
 
         return jsonify(users)
 
     except Exception as e:
-        print("Error in /api/recent-users:", e)
-        return jsonify({'error': 'Internal server error'}), 500    
+        import traceback
+        print("Error in /api/recent-users:", traceback.format_exc())
+        return jsonify({'error': 'Internal server error'}), 500
+    
     
 # Store online users
 online_users = set()
