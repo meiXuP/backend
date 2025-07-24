@@ -104,7 +104,7 @@ def upload_to_cloudinary(buffer, username, result_dict):
 
 def save_cropped_image(base64_str, username):
     if not base64_str or not username:
-        return 'default.png'
+        return 'https://res.cloudinary.com/dcfofc9fa/image/upload/v1753272438/profile_pic_sujsef.png'
 
     try:
         if base64_str.startswith('data:image'):
@@ -128,7 +128,7 @@ def save_cropped_image(base64_str, username):
         upload_thread.start()
         upload_thread.join()  # remove this if you want async
 
-        return result.get('url', 'default.png')
+        return result.get('url', 'https://res.cloudinary.com/dcfofc9fa/image/upload/v1753272438/profile_pic_sujsef.png')
 
     except Exception as e:
         print("Image upload failed:", e)
