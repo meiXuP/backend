@@ -96,10 +96,10 @@ def upload_to_cloudinary(buffer, username, result_dict):
             overwrite=True,
             resource_type="image"
         )
-        result_dict['url'] = upload_result.get("secure_url", "default.png")
+        result_dict['url'] = upload_result.get("secure_url", "https://res.cloudinary.com/dcfofc9fa/image/upload/v1753272438/profile_pic_sujsef.png")
     except Exception as e:
         print("Background upload failed:", e)
-        result_dict['url'] = "default.png"
+        result_dict['url'] = "https://res.cloudinary.com/dcfofc9fa/image/upload/v1753272438/profile_pic_sujsef.png"
 
 
 def save_cropped_image(base64_str, username):
