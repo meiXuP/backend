@@ -4451,16 +4451,16 @@ def serve_media(path: str, request: Request):
 # async def startup_event():
 #     logger.info("Starting meiXuP Premium Social Platform...")
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(
-        "main:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=True,
-        log_level="info",
-        workers=4
-    )
+# if __name__ == "__main__":
+#     import uvicorn
+#     uvicorn.run(
+#         "main:app",
+#         host="0.0.0.0",
+#         port=8000,
+#         reload=True,
+#         log_level="info",
+#         workers=4
+#     )
 
 
 
