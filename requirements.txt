@@ -27,3 +27,5 @@ redis
 python-dateutil
 
 email-validator
+
+gunicorn
