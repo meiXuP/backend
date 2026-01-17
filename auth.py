@@ -251,7 +251,7 @@ import ssl
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
-CA_PATH = BASE_DIR / "assets" / "ca.pem"
+CA_PATH = BASE_DIR / "etc" / "secrets" / "ca.pem"
 
 # /etc/secrets/
 
@@ -1273,6 +1273,7 @@ app.include_router(api_router)
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("auth:app", host="0.0.0.0", port=8000, reload=True, log_level="info")
+
 
 
     
